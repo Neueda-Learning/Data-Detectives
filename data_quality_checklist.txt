@@ -1,0 +1,94 @@
+======================================================================
+Data Quality Checklist
+======================================================================
+
+=== 1. Missing Values ===
+X1                  0
+X2                  0
+X3                  0
+X4                  0
+X5                  0
+X6                  0
+X7                  0
+X8                  0
+X9                  0
+X10                 0
+X11                 0
+X12                 0
+X13                 0
+X14                 0
+X15                 0
+X16                 0
+X17                 0
+X18                 0
+X19                 0
+X20                 0
+X21                 0
+X22                 0
+X23                 0
+default_payment     0
+Avg_Bill            0
+Avg_Pay             0
+Repayment_Ratio     0
+Ever_Overdue        0
+Utilization_Rate    0
+dtype: int64
+Result: PASS — 0 missing
+
+=== 2. Data Types ===
+X1                    int64
+X2                    int64
+X3                    int64
+X4                    int64
+X5                    int64
+X6                    int64
+X7                    int64
+X8                    int64
+X9                    int64
+X10                   int64
+X11                   int64
+X12                   int64
+X13                   int64
+X14                   int64
+X15                   int64
+X16                   int64
+X17                   int64
+X18                   int64
+X19                   int64
+X20                   int64
+X21                   int64
+X22                   int64
+X23                   int64
+default_payment       int64
+Avg_Bill            float64
+Avg_Pay             float64
+Repayment_Ratio     float64
+Ever_Overdue          int64
+Utilization_Rate    float64
+dtype: object
+
+=== 3. Value Range Check ===
+X2 value range: {np.int64(1), np.int64(2)} ✓
+X3 value range: {np.int64(1), np.int64(2), np.int64(3), np.int64(4)} ✓
+X4 value range: {np.int64(1), np.int64(2), np.int64(3)} ✓
+X6 value range: {np.int64(0), np.int64(1), np.int64(2), np.int64(3), np.int64(4), np.int64(5), np.int64(6), np.int64(7), np.int64(8)} ✓
+X7 value range: {np.int64(0), np.int64(1), np.int64(2), np.int64(3), np.int64(4), np.int64(5), np.int64(6), np.int64(7), np.int64(8)} ✓
+X8 value range: {np.int64(0), np.int64(1), np.int64(2), np.int64(3), np.int64(4), np.int64(5), np.int64(6), np.int64(7), np.int64(8)} ✓
+X9 value range: {np.int64(0), np.int64(1), np.int64(2), np.int64(3), np.int64(4), np.int64(5), np.int64(6), np.int64(7), np.int64(8)} ✓
+X10 value range: {np.int64(0), np.int64(2), np.int64(3), np.int64(4), np.int64(5), np.int64(6), np.int64(7), np.int64(8)} ✓
+X11 value range: {np.int64(0), np.int64(2), np.int64(3), np.int64(4), np.int64(5), np.int64(6), np.int64(7), np.int64(8)} ✓
+
+=== 4. Logical Check ===
+Sample X12 (Bill) vs X18 (Payment) — 10 rows:
+          X12   X18
+2308     8864  1500
+22404  136736  4486
+23397   70122  2431
+25058   20678  1610
+2664    94228  2000
+8511     1303   801
+5148     7128     0
+7790        0     0
+11311    8000  8000
+19043   68850     0
+Avg_Bill >= 0, Avg_Pay >= 0, Utilization_Rate >= 0: ✗
