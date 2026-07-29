@@ -189,8 +189,6 @@ Data-Detectives/
 ├── README.md                          # This file
 ├── analysis.py                        # Main EDA script
 ├── cleaned_credit_card_data.csv       # Input dataset
-├── Executive_EDA_Report.ipynb         # Jupyter notebook (advanced)
-└── eda_comprehensive.py               # Extended EDA framework
 ```
 
 ---
