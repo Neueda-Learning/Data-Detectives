@@ -19,7 +19,12 @@ plt.rcParams['font.size'] = 10
 # Dataset paths
 DATA_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.path.join(DATA_DIR, "cleaned_credit_card_data.csv")
+OUTPUT_DIR = os.path.join(DATA_DIR, "outputs")
 TARGET = "default_payment"
+
+# Create output directory if it doesn't exist
+if not os.path.exists(OUTPUT_DIR):
+    os.makedirs(OUTPUT_DIR)
 
 
 # ======================
@@ -27,8 +32,31 @@ TARGET = "default_payment"
 # ======================
 
 def load_data(filepath):
-    """Load dataset from CSV file."""
+    """Load dataset from CSV file and engineer features."""
     df = pd.read_csv(filepath)
+    
+    # Rename for easier access
+    df = df.rename(columns={"LIMIT_BAL": "X1", "default payment next month": "default_payment"})
+    
+    # Create engineered features if they don't exist
+    if "Ever_Overdue" not in df.columns:
+        # Check if any payment status shows overdue (-1 or -2 typically indicates overdue)
+        pay_cols = [col for col in df.columns if col.startswith('PAY_')]
+        df["Ever_Overdue"] = (df[pay_cols] < 0).any(axis=1).astype(int)
+    
+    if "Utilization_Rate" not in df.columns:
+        # Calculate average utilization
+        bill_cols = [col for col in df.columns if col.startswith('BILL_AMT')]
+        df["Utilization_Rate"] = df[bill_cols].mean(axis=1) / (df["X1"] + 1)  # Avoid division by zero
+    
+    if "Repayment_Ratio" not in df.columns:
+        # Calculate average repayment ratio
+        bill_cols = [col for col in df.columns if col.startswith('BILL_AMT')]
+        pay_cols = [col for col in df.columns if col.startswith('PAY_AMT')]
+        avg_bill = df[bill_cols].mean(axis=1)
+        avg_pay = df[pay_cols].mean(axis=1)
+        df["Repayment_Ratio"] = avg_pay / (avg_bill + 1)  # Avoid division by zero
+    
     print("Dataset Shape:", df.shape)
     print("\nColumns:", df.columns.tolist())
     print("\nFirst 5 rows:")
@@ -40,7 +68,7 @@ def load_data(filepath):
 # Target Distribution
 # ======================
 
-def analyze_target_distribution(df, target):
+def analyze_target_distribution(df, target, output_dir=None):
     """Analyze and visualize target variable distribution."""
     default_rate = df[target].mean()
     print(f"\nOverall Default Rate: {default_rate:.2%}")
@@ -51,6 +79,11 @@ def analyze_target_distribution(df, target):
     ax.set_xlabel("Default Status")
     ax.set_ylabel("Number of Customers")
     plt.tight_layout()
+    
+    if output_dir:
+        filepath = os.path.join(output_dir, "01_target_distribution.png")
+        plt.savefig(filepath, dpi=300, bbox_inches='tight')
+        print(f"✓ Saved: {filepath}")
     plt.show()
 
 
@@ -58,7 +91,7 @@ def analyze_target_distribution(df, target):
 # Correlation Analysis
 # ======================
 
-def analyze_correlations(df, target):
+def analyze_correlations(df, target, output_dir=None):
     """Analyze feature correlation with target variable."""
     corr = df.corr(numeric_only=True)[target].sort_values(ascending=False)
     print("\nFeature Correlations with Default:")
@@ -69,6 +102,11 @@ def analyze_correlations(df, target):
     ax.set_title("Feature Correlation with Default Payment", fontsize=12, fontweight="bold")
     ax.set_xlabel("Correlation Coefficient")
     plt.tight_layout()
+    
+    if output_dir:
+        filepath = os.path.join(output_dir, "02_feature_correlations.png")
+        plt.savefig(filepath, dpi=300, bbox_inches='tight')
+        print(f"✓ Saved: {filepath}")
     plt.show()
 
 
@@ -76,7 +114,7 @@ def analyze_correlations(df, target):
 # Overdue History Analysis
 # ======================
 
-def analyze_overdue_impact(df, target):
+def analyze_overdue_impact(df, target, output_dir=None):
     """Analyze impact of payment overdue history on default risk."""
     overdue_result = df.groupby("Ever_Overdue")[target].mean().reset_index()
     print("\nDefault Rate by Overdue History:")
@@ -90,6 +128,11 @@ def analyze_overdue_impact(df, target):
     ax.set_ylabel("Default Rate")
     ax.set_xticklabels(["No", "Yes"])
     plt.tight_layout()
+    
+    if output_dir:
+        filepath = os.path.join(output_dir, "03_overdue_impact.png")
+        plt.savefig(filepath, dpi=300, bbox_inches='tight')
+        print(f"✓ Saved: {filepath}")
     plt.show()
 
 
@@ -97,7 +140,7 @@ def analyze_overdue_impact(df, target):
 # Credit Utilization Analysis
 # ======================
 
-def analyze_utilization(df, target):
+def analyze_utilization(df, target, output_dir=None):
     """Analyze credit utilization impact on default risk."""
     df["Util_Group"] = pd.qcut(
         df["Utilization_Rate"],
@@ -116,6 +159,11 @@ def analyze_utilization(df, target):
     ax.set_ylabel("Default Rate")
     plt.xticks(rotation=30)
     plt.tight_layout()
+    
+    if output_dir:
+        filepath = os.path.join(output_dir, "04_utilization_analysis.png")
+        plt.savefig(filepath, dpi=300, bbox_inches='tight')
+        print(f"✓ Saved: {filepath}")
     plt.show()
 
 
@@ -123,7 +171,7 @@ def analyze_utilization(df, target):
 # Repayment Behavior Analysis
 # ======================
 
-def analyze_repayment_behavior(df, target):
+def analyze_repayment_behavior(df, target, output_dir=None):
     """Analyze repayment behavior impact on default risk."""
     df["Repayment_Group"] = pd.qcut(
         df["Repayment_Ratio"],
@@ -141,6 +189,11 @@ def analyze_repayment_behavior(df, target):
     ax.set_xlabel("Repayment Behavior Group")
     ax.set_ylabel("Default Rate")
     plt.tight_layout()
+    
+    if output_dir:
+        filepath = os.path.join(output_dir, "05_repayment_behavior.png")
+        plt.savefig(filepath, dpi=300, bbox_inches='tight')
+        print(f"✓ Saved: {filepath}")
     plt.show()
 
 
@@ -148,7 +201,7 @@ def analyze_repayment_behavior(df, target):
 # Credit Limit Segmentation
 # ======================
 
-def analyze_credit_limits(df, target):
+def analyze_credit_limits(df, target, output_dir=None):
     """Analyze credit limit impact on default risk."""
     df["Credit_Group"] = pd.qcut(
         df["X1"],
@@ -167,6 +220,11 @@ def analyze_credit_limits(df, target):
     ax.set_ylabel("Default Rate")
     ax.grid(True, alpha=0.3)
     plt.tight_layout()
+    
+    if output_dir:
+        filepath = os.path.join(output_dir, "06_credit_limits.png")
+        plt.savefig(filepath, dpi=300, bbox_inches='tight')
+        print(f"✓ Saved: {filepath}")
     plt.show()
 
 
@@ -174,7 +232,7 @@ def analyze_credit_limits(df, target):
 # Risk Segmentation Analysis
 # ======================
 
-def analyze_risk_segments(df, target):
+def analyze_risk_segments(df, target, output_dir=None):
     """Identify and analyze high-risk customer segments."""
     df["Risk_Profile"] = "Normal"
     
@@ -201,6 +259,11 @@ def analyze_risk_segments(df, target):
     ax.set_xlabel("Customer Segment")
     ax.set_ylabel("Default Rate")
     plt.tight_layout()
+    
+    if output_dir:
+        filepath = os.path.join(output_dir, "07_risk_segments.png")
+        plt.savefig(filepath, dpi=300, bbox_inches='tight')
+        print(f"✓ Saved: {filepath}")
     plt.show()
 
 
@@ -259,14 +322,17 @@ if __name__ == "__main__":
     print("CREDIT CARD DEFAULT RISK ANALYSIS")
     print("="*80)
     
-    analyze_target_distribution(df, TARGET)
-    analyze_correlations(df, TARGET)
-    analyze_overdue_impact(df, TARGET)
-    analyze_utilization(df, TARGET)
-    analyze_repayment_behavior(df, TARGET)
-    analyze_credit_limits(df, TARGET)
-    analyze_risk_segments(df, TARGET)
+    print(f"\n📁 Saving visualizations to: {OUTPUT_DIR}")
+    
+    analyze_target_distribution(df, TARGET, OUTPUT_DIR)
+    analyze_correlations(df, TARGET, OUTPUT_DIR)
+    analyze_overdue_impact(df, TARGET, OUTPUT_DIR)
+    analyze_utilization(df, TARGET, OUTPUT_DIR)
+    analyze_repayment_behavior(df, TARGET, OUTPUT_DIR)
+    analyze_credit_limits(df, TARGET, OUTPUT_DIR)
+    analyze_risk_segments(df, TARGET, OUTPUT_DIR)
     
     print_executive_summary()
     
-    print("\n✓ Analysis Complete!")
+    print(f"\n✓ Analysis Complete!")
+    print(f"✓ All visualizations saved to: {OUTPUT_DIR}")
