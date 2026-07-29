@@ -1,0 +1,23 @@
+Strand,Metric,Group,Default Rate
+A,Default rate by sex,Female,0.2078
+A,Default rate by sex,Male,0.2417
+A,Default rate by education,Graduate school,0.1923
+A,Default rate by education,High school,0.2516
+A,Default rate by education,Others,0.0705
+A,Default rate by education,University,0.2373
+A,Default rate by age band,21-30,0.2244
+A,Default rate by age band,31-40,0.2043
+A,Default rate by age band,41-50,0.233
+A,Default rate by age band,51-60,0.2524
+A,Default rate by age band,61+,0.2684
+B,Default rate by credit limit band,Q1 (lowest),0.3179
+B,Default rate by credit limit band,Q2,0.258
+B,Default rate by credit limit band,Q3,0.1986
+B,Default rate by credit limit band,Q4,0.1686
+B,Default rate by credit limit band,Q5 (highest),0.138
+C,Default rate by ever delayed,No,0.1171
+C,Default rate by ever delayed,Yes,0.4273
+E,Default rate by risk segment,High risk (delayed + high util),0.4894
+E,Default rate by risk segment,Low risk (neither),0.1155
+E,Default rate by risk segment,Medium risk (one factor),0.1895
+Overall,Overall default rate,All clients,0.2212
