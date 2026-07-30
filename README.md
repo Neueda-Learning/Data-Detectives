@@ -49,8 +49,8 @@ This project performs a comprehensive **Exploratory Data Analysis (EDA)** of cre
 
 ### 8. **Risk Segmentation**
 - Identifies **High Financial Stress** segment
-  - Criteria: High utilization + Low repayment + Ever overdue
-  - Significantly elevated default probability
+  - Criteria: High utilization + Low repayment + Ever overdue (`PAY_` status > 0)
+  - **50.7% default rate** vs 16.6% for normal customers
 - Creates risk profiles for targeted intervention
 
 ---
@@ -86,11 +86,11 @@ conda install -c conda-forge pandas numpy matplotlib seaborn
 Ensure `cleaned_credit_card_data.csv` is in the same directory as `analysis.py`.
 
 Required columns:
-- `default_payment` (target variable: 0 or 1)
-- `X1` (Credit Limit)
-- `Ever_Overdue` (binary: 0 or 1)
-- `Utilization_Rate` (ratio: 0-1 or 0-100)
-- `Repayment_Ratio` (ratio: 0-1 or 0-100)
+- `default payment next month` (target variable, auto-renamed to `default_payment`)
+- `LIMIT_BAL` (Credit Limit, auto-renamed to `X1`)
+- `PAY_0` to `PAY_6` (payment status columns, used to derive `Ever_Overdue`)
+- `BILL_AMT1-6` (bill amounts, used to derive `Utilization_Rate`)
+- `PAY_AMT1-6` (payment amounts, used to derive `Repayment_Ratio`)
 
 ### 2. **Run Analysis**
 ```bash
@@ -146,7 +146,7 @@ The script generates:
 - **Recommendation**: Implement early intervention program
 
 ### Finding #4: Combined Stress Signals Amplify Risk
-- **Evidence**: High Financial Stress segment shows dramatic default rate increase
+- **Evidence**: High Financial Stress segment — **50.7%** default rate vs 16.6% normal
 - **Pattern**: Multiple simultaneous stressors (overdue + high util + low repay)
 - **Recommendation**: Create multi-factor risk assessment
 
@@ -250,9 +250,10 @@ First 5 rows:
 Overall Default Rate: 22.12%
 
 Feature Correlations with Default:
-Ever_Overdue           0.456789
-Utilization_Rate       0.234567
-Repayment_Ratio       -0.345678
+Ever_Overdue           0.352858
+PAY_0                  0.324794
+Utilization_Rate       0.115481
+X1                    -0.153520
 ...
 
 ✓ Analysis Complete!
@@ -267,6 +268,11 @@ Repayment_Ratio       -0.345678
 - ✅ All features numerical (no encoding needed)
 - ✅ Duplicates handled (36 / 30,000 = 0.12%)
 - ✅ Target variable properly balanced (22% / 78%)
+
+### Feature Engineering (auto-applied in `load_data()`)
+- `Ever_Overdue`: 1 if any `PAY_0/2-6` **> 0** (overdue), else 0
+- `Utilization_Rate`: avg bill amount ÷ credit limit
+- `Repayment_Ratio`: avg payment amount ÷ avg bill amount
 
 ### Matplotlib Configuration
 - **Style**: seaborn-v0_8 (professional appearance)
